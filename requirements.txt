@@ -1,0 +1,6 @@
+pillow
+cloudinary
+requests
+django
+python-dotenv
+python-decouple

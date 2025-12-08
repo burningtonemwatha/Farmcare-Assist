@@ -37,7 +37,35 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',  # Including the accounts app
+    'farmcare',  # Including the farmcare app
+    'payments',  # Including the payments app
+    'cloudinary', # Cloudinary for media management
+
 ]
+
+# Registering custom user model
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
+# Email backend for password reset
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# register Login URL
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'accounts:dashboard'
+LOGOUT_REDIRECT_URL = 'accounts:login'
+
+import cloudinary
+CLOUDINARY_CONFIGS = {
+    'cloud_name': '',
+    'api_key': '',
+    'api_secret': '',
+}
+
+cloudinary.config(**CLOUDINARY_CONFIGS)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
