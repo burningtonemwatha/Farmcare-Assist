@@ -12,7 +12,7 @@ from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm
 # User Registration View
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('farmacare:dashboard')
+        return redirect('farmcare:dashboard')
     
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -20,7 +20,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, f'Welcome {user.username}! Registration successful.')
-            return redirect('farmacare:dashboard')
+            return redirect('farmcare:dashboard')
     else:
         form = UserRegistrationForm()
     
@@ -29,18 +29,18 @@ def register_view(request):
 # User Login View
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('farmacare:dashboard')
+        return redirect('farmcare:dashboard')
     
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username, password)
+            user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back {user.username}!')
-                return redirect('farmacare:dashboard')
+                return redirect('farmcare:dashboard')
     else:
         form = UserLoginForm()
     
