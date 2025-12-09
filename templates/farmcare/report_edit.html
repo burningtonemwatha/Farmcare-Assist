@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Report{% endblock %}
+{% block title %}Edit Report{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <h1>Create a Farm Issue Report</h1>
-            <p class="text-muted">Describe an issue or pest problem on your farm</p>
+            <h1>Edit Report</h1>
             
             {% if messages %}
                 {% for message in messages %}
@@ -49,16 +48,21 @@
 
                         <div class="mb-3">
                             <label class="form-label">{{ form.photo.label }}</label>
+                            {% if report.photo %}
+                                <div class="mb-2">
+                                    <img src="{{ report.photo.url }}" alt="{{ report.title }}" style="max-width: 200px; height: auto;">
+                                </div>
+                            {% endif %}
                             {{ form.photo }}
-                            <small class="form-text text-muted d-block mt-1">Upload a photo of the issue (optional)</small>
+                            <small class="form-text text-muted d-block mt-1">Upload a new photo to replace the current one</small>
                             {% if form.photo.errors %}
                                 <div class="alert alert-danger small mt-1">{{ form.photo.errors }}</div>
                             {% endif %}
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{% url 'farmcare:reports' %}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Create Report</button>
+                            <a href="{% url 'farmcare:report_detail' report.pk %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
                     </form>
                 </div>
@@ -67,4 +71,3 @@
     </div>
 </div>
 {% endblock %}
-
