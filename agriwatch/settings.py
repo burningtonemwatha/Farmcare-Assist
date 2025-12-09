@@ -45,7 +45,9 @@ INSTALLED_APPS = [
 ]
 
 # Registering custom user model
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# The actual user model class in `accounts/models.py` is `User`,
+# so point `AUTH_USER_MODEL` to `accounts.User`.
+AUTH_USER_MODEL = 'accounts.User'
 
 
 # Email backend for password reset
@@ -82,7 +84,7 @@ ROOT_URLCONF = 'agriwatch.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,6 +95,9 @@ TEMPLATES = [
         },
     },
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 WSGI_APPLICATION = 'agriwatch.wsgi.application'
 
