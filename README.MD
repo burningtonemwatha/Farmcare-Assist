@@ -317,12 +317,6 @@ copies or substantial portions of the Software.
 
 </div>
 
-## 📞 Contact & Support
-
-- **Website**: [agriwatch.example.com](https://agriwatch.example.com)
-- **Email**: support@agriwatch.example.com
-- **Twitter**: [@AgriWatchApp](https://twitter.com/AgriWatchApp)
-- **Community Forum**: [Join Discussion](https://github.com/yourusername/agriwatch/discussions)
 
 ## 📊 Project Status
 
