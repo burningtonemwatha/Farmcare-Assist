@@ -1,13 +1,13 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from .models import Report
 
+User = get_user_model()
 
 class ReportForm(forms.ModelForm):
-    """Form for creating and editing farm issue reports"""
-    
     class Meta:
         model = Report
-        fields = ('title', 'description', 'issue_type', 'photo')
+        fields = ('title', 'description', 'issue_type', 'photo', 'assigned_to')
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -26,3 +26,15 @@ class ReportForm(forms.ModelForm):
                 'accept': 'image/*',
             }),
         }
+
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.none(),   # temporarily empty
+        required=False,
+        label='Assign Expert (optional)',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # FILTER EXPERTS DYNAMICALLY
+        self.fields['assigned_to'].queryset = User.objects.filter(user_type='expert')
