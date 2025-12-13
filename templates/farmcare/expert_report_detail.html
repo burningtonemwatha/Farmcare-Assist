@@ -1,125 +1,123 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ report.title }} - AgriWatch{% endblock %}
-
 {% block content %}
 <div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <a href="{% url 'farmcare:expert_dashboard' %}" class="btn btn-outline-secondary mb-3">
-                &larr; Back to Dashboard
-            </a>
-            <h1>{{ report.title }}</h1>
-            <p class="text-muted">Report ID: #{{ report.pk }}</p>
-        </div>
-    </div>
-
     <div class="row">
-        <!-- Report Details -->
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Report Details</h5>
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-bug"></i> Report: {{ report.title }}</h4>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="text-muted">Reported By</label>
-                            <p><strong>{{ report.user.get_full_name|default:report.user.username }}</strong></p>
-                            <small class="text-muted">{{ report.user.email }}</small>
+                    <!-- Payment Check -->
+                    {% if report.payment_status != 'paid' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-lock"></i>
+                        <strong>Payment Required:</strong> This report is awaiting payment from the farmer. 
+                        You can only respond after payment is completed.
+                        
+                        {% if user == report.user %}
+                        <div class="mt-2">
+                            <a href="{% url 'farmcare:payment_checkout' report.pk %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-lock"></i> Complete Payment Now
+                            </a>
                         </div>
-                        <div class="col-md-6">
-                            <label class="text-muted">Issue Type</label>
-                            <p>
-                                <span class="badge bg-secondary">{{ report.get_issue_type_display }}</span>
-                            </p>
-                        </div>
+                        {% endif %}
                     </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="text-muted">Created Date</label>
-                            <p><strong>{{ report.created_at|date:"M d, Y \a\t H:i" }}</strong></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-muted">Last Updated</label>
-                            <p><strong>{{ report.updated_at|date:"M d, Y \a\t H:i" }}</strong></p>
-                        </div>
+                    {% endif %}
+                    
+                    <!-- Report Details -->
+                    <div class="mb-4">
+                        <p><strong>Reported by:</strong> {{ report.user.get_full_name|default:report.user.username }}</p>
+                        <p><strong>Issue Type:</strong> {{ report.get_issue_type_display }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge {% if report.status == 'pending' %}bg-warning{% elif report.status == 'in_progress' %}bg-primary{% else %}bg-success{% endif %}">
+                                {{ report.get_status_display }}
+                            </span>
+                        </p>
+                        <p><strong>Payment Status:</strong> 
+                            <span class="badge {% if report.payment_status == 'paid' %}bg-success{% elif report.payment_status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ report.get_payment_status_display }}
+                            </span>
+                        </p>
+                        <p><strong>Amount:</strong> KES {{ report.amount }}</p>
+                        <p><strong>Created:</strong> {{ report.created_at|date:"F d, Y H:i" }}</p>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="text-muted">Description</label>
-                        <p class="lead">{{ report.description }}</p>
+                    
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p>{{ report.description|linebreaks }}</p>
                     </div>
-
+                    
                     {% if report.photo %}
-                    <div class="mb-3">
-                        <label class="text-muted">Photo</label>
-                        <div>
-                            <img src="{{ report.photo.url }}" alt="Report photo" class="img-fluid rounded" style="max-height: 400px;">
+                    <div class="mb-4">
+                        <h5>Photo</h5>
+                        <img src="{{ report.photo.url }}" alt="Report photo" class="img-fluid rounded" style="max-height: 400px;">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Expert Actions -->
+                    {% if is_expert and report.payment_status == 'paid' %}
+                    <div class="card mt-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-comment-medical"></i> Expert Response</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if report.assigned_to == user or user.is_superuser %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Update Status</label>
+                                    <select name="status" id="status" class="form-select" required>
+                                        {% for value, label in report.STATUS_CHOICES %}
+                                        <option value="{{ value }}" {% if report.status == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="response" class="form-label">Your Response</label>
+                                    <textarea name="response" id="response" class="form-control" rows="4" 
+                                              placeholder="Provide your expert diagnosis and recommendations..."></textarea>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-paper-plane"></i> Submit Response
+                                    </button>
+                                    
+                                    {% if report.assigned_to == user %}
+                                    <a href="{% url 'farmcare:unassign_report' report.pk %}" class="btn btn-outline-danger">
+                                        <i class="fas fa-user-minus"></i> Unassign Me
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </form>
+                            {% elif not report.assigned_to %}
+                            <form method="POST" action="{% url 'farmcare:assign_report_to_me' report.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-user-plus"></i> Assign This Report to Me
+                                </button>
+                            </form>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                This report is assigned to {{ report.assigned_to.get_full_name|default:report.assigned_to.username }}.
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Status Update Panel -->
-        <div class="col-md-4">
-            <div class="card sticky-top" style="top: 100px;">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Update Status</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="text-muted">Current Status</label>
-                        <p>
-                            {% if report.status == 'pending' %}
-                                <span class="badge bg-warning" style="font-size: 1rem;">Pending</span>
-                            {% elif report.status == 'in_progress' %}
-                                <span class="badge bg-info" style="font-size: 1rem;">In Progress</span>
-                            {% elif report.status == 'resolved' %}
-                                <span class="badge bg-success" style="font-size: 1rem;">Resolved</span>
-                            {% endif %}
-                        </p>
+                    
+                    <!-- Back button -->
+                    <div class="mt-4">
+                        <a href="{% url 'farmcare:expert_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="text-muted">Assigned To</label>
-                        <p>
-                            {% if report.assigned_to %}
-                                <strong>{{ report.assigned_to.get_full_name|default:report.assigned_to.username }}</strong>
-                            {% else %}
-                                <span class="text-muted">Not yet assigned</span>
-                            {% endif %}
-                        </p>
-                    </div>
-
-                    <form method="post" class="mb-0">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Change Status</label>
-                            <select class="form-select" id="status" name="status" required>
-                                <option value="">-- Select Status --</option>
-                                <option value="pending" {% if report.status == 'pending' %}selected{% endif %}>
-                                    Pending
-                                </option>
-                                <option value="in_progress" {% if report.status == 'in_progress' %}selected{% endif %}>
-                                    In Progress
-                                </option>
-                                <option value="resolved" {% if report.status == 'resolved' %}selected{% endif %}>
-                                    Resolved
-                                </option>
-                            </select>
-                            <small class="text-muted d-block mt-2">
-                                Changing status will assign this report to you.
-                            </small>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">
-                            Update Status
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>

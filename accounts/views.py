@@ -1,13 +1,22 @@
+# accounts/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
+
+from accounts.models import Notification
 from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm
 
 # Create your views here.
-# This view handles user account details
+
+
+# accounts/views.py
+def home_view(request):
+    """Home/Landing page view - shows landing page to EVERYONE"""
+    # ALWAYS show the landing page, regardless of authentication
+    return render(request, 'accounts/home.html')
 
 # User Registration View
 def register_view(request):
@@ -31,16 +40,13 @@ def login_view(request):
         return redirect('farmcare:dashboard')
     
     if request.method == 'POST':
-        # AuthenticationForm (and subclasses) expect the request as the first arg
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
-            # AuthenticationForm provides the authenticated user via get_user()
             user = form.get_user()
             login(request, user)
             messages.success(request, f'Welcome back {user.username}!')
             return redirect('farmcare:dashboard')
         else:
-            # Let the form add its own error messages (will appear in messages)
             messages.error(request, 'Invalid username or password.')
     else:
         form = UserLoginForm(request)
@@ -67,6 +73,21 @@ def profile_view(request):
         form = UserProfileForm(instance=request.user)
     
     return render(request, 'accounts/profile.html', {'form': form})
+
+# Notifications View
+@login_required
+def notifications_view(request):
+    """List notifications for the current user and mark them as read."""
+    Notification.objects.filter(
+        recipient=request.user,
+        unread=True
+    ).update(unread=False)
+
+    notifications = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-created_at')
+
+    return render(request, "accounts/notifications.html", {"notifications": notifications})
 
 # Password Reset Views
 class CustomPasswordResetView(PasswordResetView):

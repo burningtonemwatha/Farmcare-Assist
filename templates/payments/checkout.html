@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Checkout - AgriWatch{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-lock"></i> Secure Payment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Payment is required to get expert consultation for your report.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Report Details</h5>
+                        <p><strong>Title:</strong> {{ report.title }}</p>
+                        <p><strong>Amount to Pay:</strong> <span class="fs-4 text-success">KES {{ report.amount }}</span></p>
+                        <p><strong>Payment Status:</strong> 
+                            <span class="badge {% if report.payment_status == 'unpaid' %}bg-warning{% elif report.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ report.get_payment_status_display }}
+                            </span>
+                        </p>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">M-Pesa Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text">+254</span>
+                                <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                       placeholder="712345678" required pattern="[0-9]{9}" 
+                                       title="Enter 9-digit phone number (without leading 0)">
+                            </div>
+                            <div class="form-text">Enter your M-Pesa registered phone number</div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Important:</strong> You will receive an STK Push prompt on your phone. Enter your M-Pesa PIN to complete payment.
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane"></i> Pay KES {{ report.amount }} with M-Pesa
+                            </button>
+                            <a href="{% url 'farmcare:report_detail' report.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Report
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt"></i> Secure payment powered by M-Pesa
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6><i class="fas fa-question-circle"></i> How to pay:</h6>
+                    <ol class="small">
+                        <li>Enter your M-Pesa registered phone number (format: 0712345678)</li>
+                        <li>Click "Pay with M-Pesa" button</li>
+                        <li>Check your phone for STK Push prompt</li>
+                        <li>Enter your M-Pesa PIN when prompted</li>
+                        <li>Wait for confirmation message</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

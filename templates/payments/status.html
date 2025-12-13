@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Status - AgriWatch{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header {% if payment.transaction_status == 'success' %}bg-success{% elif payment.transaction_status == 'failed' %}bg-danger{% else %}bg-warning{% endif %} text-white">
+                    <h4 class="mb-0">
+                        {% if payment.transaction_status == 'success' %}
+                            <i class="fas fa-check-circle"></i> Payment Successful
+                        {% elif payment.transaction_status == 'failed' %}
+                            <i class="fas fa-times-circle"></i> Payment Failed
+                        {% else %}
+                            <i class="fas fa-clock"></i> Payment Processing
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if payment.transaction_status == 'success' %}
+                            <div class="mb-3">
+                                <i class="fas fa-check-circle fa-5x text-success"></i>
+                            </div>
+                            <h3 class="text-success">Payment Successful!</h3>
+                        {% elif payment.transaction_status == 'failed' %}
+                            <div class="mb-3">
+                                <i class="fas fa-times-circle fa-5x text-danger"></i>
+                            </div>
+                            <h3 class="text-danger">Payment Failed</h3>
+                        {% else %}
+                            <div class="mb-3">
+                                <i class="fas fa-clock fa-5x text-warning"></i>
+                            </div>
+                            <h3 class="text-warning">Payment Processing</h3>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Transaction Details</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Report:</th>
+                                <td>{{ report.title }}</td>
+                            </tr>
+                            <tr>
+                                <th>Amount:</th>
+                                <td><strong>KES {{ payment.amount }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Phone Number:</th>
+                                <td>{{ payment.phone_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    <span class="badge {% if payment.transaction_status == 'success' %}bg-success{% elif payment.transaction_status == 'failed' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ payment.get_transaction_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% if payment.mpesa_receipt_number %}
+                            <tr>
+                                <th>M-Pesa Receipt:</th>
+                                <td><code>{{ payment.mpesa_receipt_number }}</code></td>
+                            </tr>
+                            {% endif %}
+                            {% if payment.mpesa_result_description %}
+                            <tr>
+                                <th>Message:</th>
+                                <td>{{ payment.mpesa_result_description }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Transaction Date:</th>
+                                <td>{{ payment.created_at|date:"F d, Y H:i:s" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    {% if payment.transaction_status == 'pending' %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Payment is being processed. Please wait a moment for confirmation.
+                        <div class="mt-2">
+                            <button id="refresh-status" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-sync"></i> Refresh Status
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        {% if payment.transaction_status == 'success' %}
+                            <a href="{% url 'farmcare:report_detail' report.pk %}" class="btn btn-success">
+                                <i class="fas fa-eye"></i> View Report
+                            </a>
+                        {% elif payment.transaction_status == 'failed' %}
+                            <a href="{% url 'payments:checkout' report.pk %}" class="btn btn-warning">
+                                <i class="fas fa-redo"></i> Try Again
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'farmcare:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if payment.transaction_status == 'pending' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const refreshBtn = document.getElementById('refresh-status');
+    const refreshStatus = async () => {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+        
+        try {
+            const response = await fetch('{% url "payments:check_status" payment.pk %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            });
+            
+            const data = await response.json();
+            
+            if (data.payment_status === 'success') {
+                // Reload page to show success state
+                location.reload();
+            } else if (data.payment_status === 'failed') {
+                // Reload page to show failed state
+                location.reload();
+            } else {
+                // Still pending, re-enable button
+                setTimeout(() => {
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = '<i class="fas fa-sync"></i> Refresh Status';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="fas fa-sync"></i> Refresh Status';
+        }
+    };
+    
+    refreshBtn.addEventListener('click', refreshStatus);
+    
+    // Auto-refresh every 10 seconds if still pending
+    setTimeout(refreshStatus, 10000);
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,140 @@
+# Create a simple expert_profile.html template
+@'
+{% extends 'base.html' %}
+
+{% block title %}{{ expert.username }} - Expert Profile{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        {% if expert.profile_image %}
+                            <img src="{{ expert.profile_image.url }}" 
+                                 alt="{{ expert.username }}" 
+                                 class="rounded-circle me-4" 
+                                 width="120" height="120" style="object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary me-4 d-flex align-items-center justify-content-center" 
+                                 style="width: 120px; height: 120px;">
+                                <i class="fas fa-user text-white fa-3x"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="flex-grow-1">
+                            <h1 class="card-title">{{ expert.get_full_name|default:expert.username }}</h1>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-envelope"></i> {{ expert.email }}
+                            </p>
+                            
+                            {% if expert.avg_rating > 0 %}
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= expert.avg_rating|floatformat:0 %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="fw-bold">{{ expert.avg_rating|floatformat:1 }}</span>
+                                    <span class="text-muted ms-1">({{ expert.rating_count }} review{{ expert.rating_count|pluralize }})</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if expert.available %}
+                                <span class="badge bg-success fs-6"><i class="fas fa-check-circle"></i> Currently Available</span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6"><i class="fas fa-clock"></i> Currently Busy</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if expert.bio %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user-circle"></i> About</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ expert.bio|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if expert.specialties %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tags"></i> Specialties</h5>
+                </div>
+                <div class="card-body">
+                    {% for specialty in expert.get_specialties_list %}
+                        <span class="badge bg-success fs-6 me-2 mb-2 p-2">{{ specialty }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if expert.credentials %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> Credentials & Qualifications</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ expert.credentials|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Select This Expert</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>Want this expert to review your issue?</p>
+                    <a href="{% url 'farmcare:report_create' %}?expert={{ expert.pk }}" 
+                       class="btn btn-success btn-lg w-100 mb-2">
+                        <i class="fas fa-check"></i> Select for New Report
+                    </a>
+                    <a href="{% url 'farmcare:experts' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Experts List
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Quick Facts</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-user-tag text-success me-2"></i>
+                            <strong>Role:</strong> {{ expert.get_user_type_display }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-calendar-alt text-success me-2"></i>
+                            <strong>Member since:</strong> {{ expert.date_joined|date:"F Y" }}
+                        </li>
+                        {% if expert.is_active %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Status:</strong> Active
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+'@ | Out-File -FilePath "templates\farmcare\expert_detail.html" -Encoding utf8
