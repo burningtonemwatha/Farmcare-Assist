@@ -12,15 +12,14 @@ from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm
 # User Registration View
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('farmacare:dashboard')
+        return redirect('farmcare:dashboard')
     
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            messages.success(request, f'Welcome {user.username}! Registration successful.')
-            return redirect('farmacare:dashboard')
+            messages.success(request, f'Welcome {user.username}! Registration successful. Please log in.')
+            return redirect('accounts:login')
     else:
         form = UserRegistrationForm()
     
@@ -29,20 +28,22 @@ def register_view(request):
 # User Login View
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('farmacare:dashboard')
+        return redirect('farmcare:dashboard')
     
     if request.method == 'POST':
-        form = UserLoginForm(request.POST)
+        # AuthenticationForm (and subclasses) expect the request as the first arg
+        form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username, password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, f'Welcome back {user.username}!')
-                return redirect('farmacare:dashboard')
+            # AuthenticationForm provides the authenticated user via get_user()
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f'Welcome back {user.username}!')
+            return redirect('farmcare:dashboard')
+        else:
+            # Let the form add its own error messages (will appear in messages)
+            messages.error(request, 'Invalid username or password.')
     else:
-        form = UserLoginForm()
+        form = UserLoginForm(request)
     
     return render(request, 'accounts/login.html', {'form': form})
 

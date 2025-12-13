@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from a .env file if present
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,11 +48,29 @@ INSTALLED_APPS = [
 ]
 
 # Registering custom user model
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# The actual user model class in `accounts/models.py` is `User`,
+# so point `AUTH_USER_MODEL` to `accounts.User`.
+AUTH_USER_MODEL = 'accounts.User'
 
 
 # Email backend for password reset
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#
+# By default this project will use an SMTP backend driven by environment
+# variables so you can send real emails in production. For local development
+# you can keep using the console backend by setting
+# `EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend` in your env.
+
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+
+# Common SMTP settings (use environment variables to avoid hard-coding secrets)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+# Default from address used when sending emails
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 
 
 # register Login URL
@@ -58,10 +79,11 @@ LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
 import cloudinary
+# Cloudinary configuration - read from environment variables
 CLOUDINARY_CONFIGS = {
-    'cloud_name': '',
-    'api_key': '',
-    'api_secret': '',
+    'cloud_name': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+    'api_key': os.environ.get('CLOUDINARY_API_KEY', ''),
+    'api_secret': os.environ.get('CLOUDINARY_API_SECRET', ''),
 }
 
 cloudinary.config(**CLOUDINARY_CONFIGS)
@@ -82,7 +104,7 @@ ROOT_URLCONF = 'agriwatch.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,6 +115,9 @@ TEMPLATES = [
         },
     },
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 WSGI_APPLICATION = 'agriwatch.wsgi.application'
 

@@ -16,14 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
+from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # Root URL -> project homepage
+    path('', views.home_view, name='home'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')), ## Including accounts app URLs
+    path('farmcare/', include('farmcare.urls')), ## Including farmcare app URLs
 ]
 
-if settings.DEBUG:
+#if settings.DEBUG:
     
-    urlpatterns += static (settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    #urlpatterns += static (settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

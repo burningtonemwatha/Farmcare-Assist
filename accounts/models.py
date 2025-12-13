@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
@@ -12,7 +13,7 @@ class User(AbstractUser):
 
     # Table to store user roles
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-    profile_image = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    profile_image = CloudinaryField('image', blank=True, null=True)
     bio = models.TextField(max_length=500, null=True, blank=True)
 
     # Methods for the User models

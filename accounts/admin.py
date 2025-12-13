@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
         ('Additional Info', {
-            'fields': ('user_type')}
+            'fields': ('user_type',)}
         ),
     )
     search_fields = ('username', 'email')
