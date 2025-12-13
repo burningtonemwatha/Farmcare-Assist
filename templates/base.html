@@ -59,6 +59,7 @@
                             </a>
                         </li>
 
+                        {% if user.user_type != 'expert' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'farmcare:report_create' %}">
                                 <i class="fas fa-plus-circle"></i> Report Issue
@@ -70,6 +71,7 @@
                                 <i class="fas fa-clipboard-list"></i> My Reports
                             </a>
                         </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
 
@@ -93,8 +95,17 @@
                                     <i class="fas fa-seedling"></i> My Farm
                                 </a></li>
 
+                                {% if user.user_type != 'expert' %}
                                 <li><a class="dropdown-item" href="{% url 'farmcare:reports' %}">
                                     <i class="fas fa-bug"></i> My Reports
+                                </a></li>
+                                {% endif %}
+
+                                <li><a class="dropdown-item" href="{% url 'accounts:notifications' %}">
+                                    <i class="fas fa-bell"></i> Notifications
+                                    {% if user.unread_notifications_count > 0 %}
+                                        <span class="badge bg-danger ms-2">{{ user.unread_notifications_count }}</span>
+                                    {% endif %}
                                 </a></li>
 
                                     {% if user.user_type == 'expert' %}

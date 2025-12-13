@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
 from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm
+from .models import Notification
 
 # Create your views here.
 # This view handles user account details
@@ -67,6 +68,23 @@ def profile_view(request):
         form = UserProfileForm(instance=request.user)
     
     return render(request, 'accounts/profile.html', {'form': form})
+
+# Notifications View - CORRECTED WITH @login_required DECORATOR
+@login_required
+def notifications_view(request):
+    """List notifications for the current user and mark them as read."""
+    # 1. Mark all unread notifications for this user as read
+    Notification.objects.filter(
+        recipient=request.user,  # Correct field name from your model
+        unread=True
+    ).update(unread=False)
+
+    # 2. Fetch notifications for this user (most recent first)
+    notifications = Notification.objects.filter(
+        recipient=request.user  # Correct field name from your model
+    ).order_by('-created_at')
+
+    return render(request, "accounts/notifications.html", {"notifications": notifications})
 
 # Password Reset Views
 class CustomPasswordResetView(PasswordResetView):

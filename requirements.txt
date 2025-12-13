@@ -4,3 +4,4 @@ requests
 django
 python-dotenv
 python-decouple
+python-daraja==3.1.0

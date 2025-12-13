@@ -48,6 +48,18 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">{{ form.assigned_to.label }}</label>
+                            <div class="d-flex gap-2 align-items-center">
+                                {{ form.assigned_to }}
+                                <a href="{% url 'farmcare:experts' %}" class="btn btn-sm btn-outline-secondary">Browse Experts</a>
+                            </div>
+                            <small class="text-muted d-block mt-1">Select an expert to review your report (optional)</small>
+                            {% if form.assigned_to.errors %}
+                                <div class="alert alert-danger small mt-1">{{ form.assigned_to.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">{{ form.photo.label }}</label>
                             {{ form.photo }}
                             <small class="form-text text-muted d-block mt-1">Upload a photo of the issue (optional)</small>

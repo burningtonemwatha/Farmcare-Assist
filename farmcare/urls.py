@@ -13,4 +13,17 @@ urlpatterns = [
     # Expert routes
     path('expert/dashboard/', views.expert_dashboard_view, name='expert_dashboard'),
     path('expert/report/<int:pk>/', views.expert_report_detail_view, name='expert_report_detail'),
+    
+    # Payment routes
+    path('report/<int:pk>/payment/checkout/', views.payment_checkout_view, name='payment_checkout'),
+    path('report/<int:pk>/payment/status/', views.payment_status_view, name='payment_status'),
+    path('payment/check-status/<int:pk>/', views.check_payment_status_ajax, name='check_payment_status'),
+    path('payment/callback/', views.mpesa_callback_view, name='mpesa_callback'),
+    # Experts directory
+    path('experts/', views.experts_list_view, name='experts'),
+    path('experts/<int:pk>/', views.expert_profile_view, name='expert_profile'),
+    path('farmer/<int:pk>/', views.farmer_detail_view, name='farmer_detail'),
+    path('report/<int:pk>/assign/', views.assign_report_to_me, name='assign_report_to_me'),
+    path('report/<int:pk>/unassign/', views.unassign_report, name='unassign_report'),
+    # Notifications are handled in accounts app
 ]

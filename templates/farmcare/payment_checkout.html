@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - {{ report.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <a href="{% url 'farmcare:report_detail' report.pk %}" class="btn btn-outline-secondary mb-3">
+                &larr; Back to Report
+            </a>
+
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Pay for Report</h4>
+                </div>
+
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>{{ report.title }}</h5>
+                        <p class="text-muted">{{ report.description|truncatewords:20 }}</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>Amount Due:</strong>
+                        <h3 class="text-success mt-2">KES {{ report.amount }}</h3>
+                    </div>
+
+                    <form method="post" id="paymentForm">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">
+                                <strong>M-Pesa Phone Number</strong>
+                            </label>
+                            <input 
+                                type="tel" 
+                                class="form-control form-control-lg" 
+                                id="phone" 
+                                name="phone_number" 
+                                placeholder="0712345678 or 254712345678"
+                                required
+                                pattern="^(0|\+?254)[0-9]{9}$"
+                                title="Enter a valid M-Pesa phone number (e.g., 0712345678 or 254712345678)"
+                            >
+                            <small class="text-muted d-block mt-2">
+                                The phone number must be a valid M-Pesa account number.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Important:</strong> You will receive an M-Pesa prompt (STK) on your phone. 
+                                Please enter your M-Pesa PIN when prompted to complete the payment.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-mobile-alt"></i> Send M-Pesa Prompt
+                        </button>
+
+                        <button type="reset" class="btn btn-outline-secondary w-100 mt-2">
+                            Clear
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6 class="text-muted">Payment Information</h6>
+                <ul class="small text-muted">
+                    <li>This is a secure M-Pesa payment</li>
+                    <li>You will be prompted to enter your M-Pesa PIN</li>
+                    <li>Payment status will be updated instantly</li>
+                    <li>Keep your phone number secure</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    const phone = document.getElementById('phone').value;
+    
+    // Normalize phone number
+    let normalized = phone.startsWith('0') ? '254' + phone.substring(1) : phone;
+    
+    // Validate
+    if (!/^254[0-9]{9}$/.test(normalized)) {
+        alert('Please enter a valid M-Pesa phone number');
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

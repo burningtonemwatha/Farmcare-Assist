@@ -1,0 +1,17 @@
+from django.shortcuts import render
+from .models import Notification
+
+def notifications_view(request):
+    # 1. Mark all unread notifications as read
+    Notification.objects.filter(
+        user=request.user, unread=True
+    ).update(unread=False)
+
+    # 2. Fetch notifications (you can slice if you want)
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+
+    return render(request, "accounts/notifications.html", {
+        "notifications": notifications
+    })

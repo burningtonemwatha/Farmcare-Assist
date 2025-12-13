@@ -58,6 +58,28 @@
                             {% endif %}
                         </div>
 
+                        {% if user.user_type == 'expert' %}
+                        <hr/>
+                        <h5>Expert Profile</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.specialties.label }}</label>
+                            {{ form.specialties }}
+                            <small class="text-muted d-block mt-1">Comma separated specialties (e.g., pests, diseases, irrigation)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.credentials.label }}</label>
+                            {{ form.credentials }}
+                            <small class="text-muted d-block mt-1">Briefly list your qualifications and credentials</small>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            {{ form.available }}
+                            <label class="form-check-label">Available to take new reports</label>
+                        </div>
+                        {% endif %}
+
                         <div class="mb-3">
                             <label class="form-label">{{ form.profile_image.label }}</label>
                             {% if user.profile_image %}

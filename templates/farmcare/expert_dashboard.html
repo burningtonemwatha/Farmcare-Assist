@@ -7,109 +7,91 @@
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="mb-4">Expert Dashboard</h1>
+            <p class="text-muted">Overview of farmers and the most commonly reported issues.</p>
         </div>
     </div>
 
-    <!-- Status Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card border-warning">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-warning">Pending</h5>
-                    <h2 class="display-4 text-warning">{{ pending_count }}</h2>
-                    <a href="?status=pending" class="btn btn-sm btn-warning mt-2">View</a>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Farmers (by reports)</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for farmer in farmers %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'farmcare:farmer_detail' farmer.pk %}" class="stretched-link text-decoration-none">
+                                    <strong>{{ farmer.get_full_name|default:farmer.username }}</strong>
+                                </a>
+                                <div class="small text-muted">{{ farmer.email }}</div>
+                                {% if farmer.recent_count > 0 %}
+                                    <div class="small mt-1">
+                                        <span class="badge bg-warning text-dark">{{ farmer.recent_count }} reports (7d)</span>
+                                        {% if farmer.recent_count >= 3 %}
+                                            <span class="badge bg-danger ms-1">Spike</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ farmer.report_count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No farmers found.</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card border-info">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-info">In Progress</h5>
-                    <h2 class="display-4 text-info">{{ in_progress_count }}</h2>
-                    <a href="?status=in_progress" class="btn btn-sm btn-info mt-2">View</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card border-success">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-success">Resolved</h5>
-                    <h2 class="display-4 text-success">{{ resolved_count }}</h2>
-                    <a href="?status=resolved" class="btn btn-sm btn-success mt-2">View</a>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Filter -->
-    <div class="mb-4">
-        <a href="?" class="btn btn-outline-secondary">All Reports</a>
-        <a href="?status=pending" class="btn btn-outline-warning">Pending</a>
-        <a href="?status=in_progress" class="btn btn-outline-info">In Progress</a>
-        <a href="?status=resolved" class="btn btn-outline-success">Resolved</a>
-    </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Paid Reports</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for report in recent_reports %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ report.title }}</strong>
+                                    <div class="small text-muted">Farmer: {{ report.user.get_full_name|default:report.user.username }}</div>
+                                </div>
+                                <a href="{% url 'farmcare:expert_report_detail' report.pk %}" class="btn btn-sm btn-outline-primary">Open</a>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No recent paid reports.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-    <!-- Reports Table -->
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Title</th>
-                        <th>Farmer</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Assigned To</th>
-                        <th>Created</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in all_reports %}
-                    <tr>
-                        <td>
-                            <strong>{{ report.title }}</strong>
-                        </td>
-                        <td>{{ report.user.get_full_name|default:report.user.username }}</td>
-                        <td>
-                            <span class="badge bg-secondary">{{ report.get_issue_type_display }}</span>
-                        </td>
-                        <td>
-                            {% if report.status == 'pending' %}
-                                <span class="badge bg-warning">Pending</span>
-                            {% elif report.status == 'in_progress' %}
-                                <span class="badge bg-info">In Progress</span>
-                            {% elif report.status == 'resolved' %}
-                                <span class="badge bg-success">Resolved</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report.assigned_to %}
-                                {{ report.assigned_to.get_full_name|default:report.assigned_to.username }}
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ report.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <a href="{% url 'farmcare:expert_report_detail' report.pk %}" class="btn btn-sm btn-primary">
-                                View & Update
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">
-                            {% if selected_status %}
-                                No reports with status "{{ selected_status }}"
-                            {% else %}
-                                No reports yet
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Most Reported Issues</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for issue in top_issues %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>{{ issue.label }}</div>
+                            <span class="badge bg-danger rounded-pill">{{ issue.count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No issues reported yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Filters</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="?" class="btn btn-outline-secondary btn-sm">All</a>
+                        <a href="?status=pending" class="btn btn-warning btn-sm">Pending</a>
+                        <a href="?status=in_progress" class="btn btn-info btn-sm">In Progress</a>
+                        <a href="?status=resolved" class="btn btn-success btn-sm">Resolved</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

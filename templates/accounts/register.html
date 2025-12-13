@@ -66,3 +66,26 @@
     </div>
 </div>
 {% endblock %}
+
+<script>
+// Toggle expert-only fields when user_type == 'expert'
+document.addEventListener('DOMContentLoaded', function(){
+    const userType = document.getElementById('id_user_type');
+    const expertFields = ['id_profile_image','id_bio','id_specialties','id_credentials','id_available'];
+
+    function toggleExpertFields(){
+        const show = userType && userType.value === 'expert';
+        expertFields.forEach(id => {
+            const el = document.getElementById(id);
+            if(!el) return;
+            const parent = el.closest('.mb-3') || el.parentElement;
+            if(parent) parent.style.display = show ? '' : 'none';
+        });
+    }
+
+    if(userType){
+        userType.addEventListener('change', toggleExpertFields);
+        toggleExpertFields();
+    }
+});
+</script>

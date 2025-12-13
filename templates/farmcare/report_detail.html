@@ -37,6 +37,43 @@
                         <p class="lead">{{ report.description|linebreaks }}</p>
                     </div>
 
+                    <!-- Payment Section -->
+                    <div class="alert alert-warning mt-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mb-2">Expert Consultation Fee</h5>
+                                <p class="mb-0 text-muted">
+                                    An expert needs to review your report before providing diagnosis and recommendations.
+                                </p>
+                                <p class="mt-2 mb-0">
+                                    <strong>Amount Due: KES {{ report.amount }}</strong>
+                                </p>
+                                <small class="text-muted">
+                                    {% if report.payment_status == 'paid' %}
+                                        ✓ Payment received - Expert will review your report shortly
+                                    {% elif report.payment_status == 'pending' %}
+                                        ⏳ Payment pending - Check your phone for M-Pesa prompt
+                                    {% elif report.payment_status == 'failed' %}
+                                        ✗ Payment failed - Please try again
+                                    {% else %}
+                                        Please complete payment to proceed
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                {% if report.payment_status == 'paid' %}
+                                    <span class="badge bg-success" style="font-size: 0.9rem;">
+                                        <i class="fas fa-check-circle"></i> Paid
+                                    </span>
+                                {% else %}
+                                    <a href="{% url 'farmcare:payment_checkout' report.pk %}" class="btn btn-success">
+                                        <i class="fas fa-mobile-alt"></i> Pay with M-Pesa
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-4">
                         <a href="{% url 'farmcare:report_edit' report.pk %}" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Edit
