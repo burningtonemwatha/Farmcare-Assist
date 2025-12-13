@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - AgriWatch{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1>Notifications</h1>
+  <div class="card mt-3">
+    <div class="card-body">
+      <ul class="list-group">
+        {% for n in notifications %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <div>{{ n.verb }}</div>
+            <div class="small text-muted">{{ n.created_at|date:'M d, Y H:i' }}</div>
+          </div>
+          <div class="text-end">
+            {% if n.url %}
+              <a href="{{ n.url }}" class="btn btn-sm btn-outline-primary">Open</a>
+            {% endif %}
+            {% if n.unread %}
+              <span class="badge bg-danger ms-2">New</span>
+            {% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">You have no notifications.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
