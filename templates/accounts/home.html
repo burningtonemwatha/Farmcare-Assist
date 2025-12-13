@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Hero Section - WITH INCREASED SIDE PADDING -->
+    <div class="bg-success text-white py-5 rounded-3 mx-3 mt-3">
+        <div class="container px-4 px-lg-5">  <!-- ADDED px-4 px-lg-5 HERE -->
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">AgriWatch</h1>
+                    <p class="lead mb-4">Smarter Farming, Healthier Crops</p>
+                    <p class="mb-5">Report issues on your farm, get expert diagnoses, and track remediation — all in one place.</p>
+                    <div class="d-flex gap-3">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'farmcare:dashboard' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                            </a>
+                            <a href="{% url 'farmcare:report_create' %}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-plus-circle"></i> Report an Issue
+                            </a>
+                        {% else %}
+                            <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-user-plus"></i> Get Started
+                            </a>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Farming" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container py-5">
+        <h2 class="text-center mb-5">How AgriWatch Works</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-bug fa-3x text-success"></i>
+                        </div>
+                        <h4 class="card-title">1. Report Issues</h4>
+                        <p class="card-text">Upload photos and describe farm issues like pests, diseases, or soil problems.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-credit-card fa-3x text-success"></i>
+                        </div>
+                        <h4 class="card-title">2. Secure Payment</h4>
+                        <p class="card-text">Pay securely via M-Pesa to get expert consultation for your farm issues.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-user-md fa-3x text-success"></i>
+                        </div>
+                        <h4 class="card-title">3. Get Expert Help</h4>
+                        <p class="card-text">Receive professional diagnosis and solutions from certified agricultural experts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="bg-light py-5">
+        <div class="container text-center">
+            <h2 class="mb-4">Ready to Protect Your Farm?</h2>
+            <p class="lead mb-4">Join thousands of farmers using AgriWatch to get expert help for their farming challenges.</p>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'accounts:register' %}" class="btn btn-success btn-lg px-5">
+                <i class="fas fa-seedling"></i> Start Free Today
+            </a>
+            {% else %}
+            <a href="{% url 'farmcare:report_create' %}" class="btn btn-success btn-lg px-5">
+                <i class="fas fa-plus-circle"></i> Create Your First Report
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

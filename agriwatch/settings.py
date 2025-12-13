@@ -28,8 +28,15 @@ SECRET_KEY = 'django-insecure-zg!9ndyi9(f)x08hblu)=d^axezy-4rix(dfkv!d==u!oazw^j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "miss-catabatic-tortiously.ngrok-free.dev",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://miss-catabatic-tortiously.ngrok-free.dev",
+]
 
 # Application definition
 
@@ -104,7 +111,7 @@ ROOT_URLCONF = 'agriwatch.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
